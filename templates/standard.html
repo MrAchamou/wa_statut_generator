@@ -4,56 +4,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statut Standard - Social Content Masterclass</title>
+    <title>{{title}}</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #0a0a0a;
-            color: white;
-            overflow: hidden;
-        }
-
-        .device-frame {
-            position: relative;
-            border-radius: 25px;
-            padding: 20px;
-            border: 3px solid #333;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            overflow: hidden;
-            margin: 20px auto;
-        }
-
-        .device-screen {
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ff6b6b 100%);
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
 
-        .format-9-16 { width: 280px; height: 498px; }
-        .format-1-1 { width: 350px; height: 350px; }
-        .format-16-9 { width: 480px; height: 270px; }
-        .format-4-5 { width: 320px; height: 400px; }
-
-        .content-layout {
+        .status-container {
             width: 100%;
-            height: 100%;
-            position: relative;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .content-grid {
             display: grid;
             grid-template-areas: 
-                "header header"
-                "logo title"
-                "content content"
+                "title title"
+                "logo content"
                 "cta cta"
-                "footer footer";
-            grid-template-rows: auto 1fr auto auto auto;
+                "contact contact";
+            grid-template-columns: 80px 1fr;
+            grid-template-rows: auto auto auto auto;
             gap: 20px;
             padding: 25px;
             background: rgba(0,0,0,0.3);
@@ -78,12 +66,35 @@
             background-clip: text;
         }
 
-        .content-main {
+        .content-logo {
+            grid-area: logo;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .content-logo img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .content-message {
             grid-area: content;
-            text-align: center;
+            text-align: left;
             font-size: 1.1rem;
             line-height: 1.5;
             color: rgba(255,255,255,0.95);
+            display: flex;
+            align-items: center;
         }
 
         .content-cta {
@@ -97,35 +108,39 @@
             border: none;
             cursor: pointer;
             font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .content-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .content-contact {
+            grid-area: contact;
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+            font-style: italic;
         }
 
         {{EFFECT_STYLES}}
     </style>
 </head>
 <body>
-    <div class="device-frame">
-        <div class="device-screen">
-            <div class="content-layout">
-                <div class="content-logo content-element" id="content-logo">
-                    {{logo}}
-                </div>
-                
-                <div class="content-title content-element" id="content-title">
-                    {{title}}
-                </div>
-                
-                <div class="content-main content-element" id="content-main">
-                    {{message}}
-                </div>
-                
-                <div class="content-cta content-element" id="content-cta">
-                    {{cta}}
-                </div>
-                
-                <div class="content-footer content-element" id="content-footer">
-                    {{footer}}
-                </div>
+    <div class="status-container">
+        <div class="content-grid">
+            <div class="content-element content-title">{{title}}</div>
+            <div class="content-element content-logo">
+                {{#if logo}}
+                    <img src="{{logo}}" alt="Logo" />
+                {{else}}
+                    {{shopName.[0] || "🏪"}}
+                {{/if}}
             </div>
+            <div class="content-element content-message">{{message}}</div>
+            <button class="content-element content-cta">{{cta}}</button>
+            <div class="content-element content-contact">{{contact}}</div>
         </div>
     </div>
 </body>

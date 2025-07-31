@@ -1,65 +1,20 @@
 const fs = require('fs');
 const path = require('path');
+const effectProcessor = require('../services/effectProcessor');
+const scenarioEngine = require('../services/scenarioEngine');
 
 // Get all available effects
 exports.getEffects = async (req, res) => {
   try {
-    const effectsDir = path.join(__dirname, '../effects');
-    const textEffectsDir = path.join(effectsDir, 'text');
-    const imageEffectsDir = path.join(effectsDir, 'image');
-
-    const effects = {
-      text: {},
-      image: {}
-    };
-
-    // Load text effects
-    if (fs.existsSync(textEffectsDir)) {
-      const textFiles = fs.readdirSync(textEffectsDir).filter(file => file.endsWith('.js'));
-      for (const file of textFiles) {
-        const effectName = file.replace('.js', '');
-        const effectPath = path.join(textEffectsDir, file);
-        try {
-          const effectContent = fs.readFileSync(effectPath, 'utf8');
-          effects.text[effectName] = {
-            name: effectName,
-            type: 'text',
-            file: file,
-            content: effectContent
-          };
-        } catch (error) {
-          console.error(`Error loading text effect ${file}:`, error);
-        }
-      }
-    }
-
-    // Load image effects
-    if (fs.existsSync(imageEffectsDir)) {
-      const imageFiles = fs.readdirSync(imageEffectsDir).filter(file => file.endsWith('.js'));
-      for (const file of imageFiles) {
-        const effectName = file.replace('.js', '');
-        const effectPath = path.join(imageEffectsDir, file);
-        try {
-          const effectContent = fs.readFileSync(effectPath, 'utf8');
-          effects.image[effectName] = {
-            name: effectName,
-            type: 'image',
-            file: file,
-            content: effectContent
-          };
-        } catch (error) {
-          console.error(`Error loading image effect ${file}:`, error);
-        }
-      }
-    }
+    const effects = await effectProcessor.getAllEffects();
 
     res.json({
       success: true,
       data: effects,
       count: {
-        text: Object.keys(effects.text).length,
-        image: Object.keys(effects.image).length,
-        total: Object.keys(effects.text).length + Object.keys(effects.image).length
+        text: Object.keys(effects.text || {}).length,
+        image: Object.keys(effects.image || {}).length,
+        total: Object.keys(effects.text || {}).length + Object.keys(effects.image || {}).length
       }
     });
   } catch (error) {
@@ -84,27 +39,7 @@ exports.getEffectsByType = async (req, res) => {
       });
     }
 
-    const effectsDir = path.join(__dirname, '../effects', type);
-    const effects = {};
-
-    if (fs.existsSync(effectsDir)) {
-      const effectFiles = fs.readdirSync(effectsDir).filter(file => file.endsWith('.js'));
-      for (const file of effectFiles) {
-        const effectName = file.replace('.js', '');
-        const effectPath = path.join(effectsDir, file);
-        try {
-          const effectContent = fs.readFileSync(effectPath, 'utf8');
-          effects[effectName] = {
-            name: effectName,
-            type: type,
-            file: file,
-            content: effectContent
-          };
-        } catch (error) {
-          console.error(`Error loading ${type} effect ${file}:`, error);
-        }
-      }
-    }
+    const effects = await effectProcessor.getEffectsByType(type);
 
     res.json({
       success: true,
@@ -125,23 +60,7 @@ exports.getEffectsByType = async (req, res) => {
 // Get all scenarios
 exports.getScenarios = async (req, res) => {
   try {
-    const scenariosDir = path.join(__dirname, '../scenarios');
-    const scenarios = {};
-
-    if (fs.existsSync(scenariosDir)) {
-      const scenarioFiles = fs.readdirSync(scenariosDir).filter(file => file.endsWith('.js'));
-      for (const file of scenarioFiles) {
-        const platform = file.replace('.js', '');
-        const scenarioPath = path.join(scenariosDir, file);
-        try {
-          delete require.cache[require.resolve(scenarioPath)];
-          const scenarioData = require(scenarioPath);
-          scenarios[platform] = scenarioData;
-        } catch (error) {
-          console.error(`Error loading scenario ${file}:`, error);
-        }
-      }
-    }
+    const scenarios = await scenarioEngine.getAllScenarios();
 
     res.json({
       success: true,
@@ -163,21 +82,18 @@ exports.getScenarios = async (req, res) => {
 exports.getScenario = async (req, res) => {
   try {
     const { platform } = req.params;
-    const scenarioPath = path.join(__dirname, '../scenarios', `${platform}.js`);
+    const scenario = await scenarioEngine.getScenarioByPlatform(platform);
 
-    if (!fs.existsSync(scenarioPath)) {
+    if (!scenario) {
       return res.status(404).json({
         success: false,
         error: `Scenario for platform "${platform}" not found`
       });
     }
 
-    delete require.cache[require.resolve(scenarioPath)];
-    const scenarioData = require(scenarioPath);
-
     res.json({
       success: true,
-      data: scenarioData,
+      data: scenario,
       platform: platform
     });
   } catch (error) {
@@ -193,7 +109,7 @@ exports.getScenario = async (req, res) => {
 // Generate content
 exports.generateContent = async (req, res) => {
   try {
-    const { content, effects, scenario, template } = req.body;
+    const { platform, scenario, device, format, mood, content, effects, export: exportOptions } = req.body;
 
     if (!content) {
       return res.status(400).json({
@@ -202,34 +118,44 @@ exports.generateContent = async (req, res) => {
       });
     }
 
-    // Load template
-    const templateName = template || 'basic';
-    const templatePath = path.join(__dirname, '../templates', `${templateName}.html`);
+    // Process scenario
+    const processedScenario = await scenarioEngine.processScenario(
+      platform || 'whatsapp',
+      scenario || 'basic',
+      content
+    );
 
-    let htmlTemplate = '<html><body>{{content}}</body></html>';
-    if (fs.existsSync(templatePath)) {
-      htmlTemplate = fs.readFileSync(templatePath, 'utf8');
+    // Convert effects object to array format expected by processor
+    const effectsArray = [];
+    if (effects) {
+      Object.keys(effects).forEach(target => {
+        if (effects[target] && effects[target] !== 'none') {
+          effectsArray.push({
+            name: effects[target],
+            type: target === 'logo' ? 'image' : 'text',
+            target: `.content-${target}`
+          });
+        }
+      });
     }
 
-    // Process content with effects
-    let processedContent = content;
-
-    if (effects && effects.length > 0) {
-      // Apply effects logic here
-      processedContent = `<div class="effects-container">${content}</div>`;
-    }
-
-    // Replace template placeholders
-    const finalHtml = htmlTemplate.replace('{{content}}', processedContent);
+    // Generate HTML with effects
+    const html = await effectProcessor.generateWithEffects({
+      scenario: processedScenario,
+      platform: platform || 'whatsapp',
+      content: content,
+      effects: effectsArray,
+      template: 'standard'
+    });
 
     res.json({
       success: true,
       data: {
-        html: finalHtml,
-        content: processedContent,
-        effects: effects || [],
-        scenario: scenario || null,
-        template: templateName
+        html: html,
+        content: content,
+        effects: effectsArray,
+        scenario: processedScenario,
+        platform: platform || 'whatsapp'
       }
     });
   } catch (error) {
@@ -254,24 +180,17 @@ exports.previewContent = async (req, res) => {
       });
     }
 
-    // Load template
-    const templateName = template || 'basic';
-    const templatePath = path.join(__dirname, '../templates', `${templateName}.html`);
-
-    let htmlTemplate = '<html><body>{{content}}</body></html>';
-    if (fs.existsSync(templatePath)) {
-      htmlTemplate = fs.readFileSync(templatePath, 'utf8');
-    }
-
-    // Replace template placeholders
-    const finalHtml = htmlTemplate.replace('{{content}}', content);
+    const html = await effectProcessor.generatePreview({
+      content: content,
+      template: template || 'standard'
+    });
 
     res.json({
       success: true,
       data: {
-        html: finalHtml,
+        html: html,
         content: content,
-        template: templateName
+        template: template || 'standard'
       }
     });
   } catch (error) {

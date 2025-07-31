@@ -1,43 +1,58 @@
 
 module.exports = {
   basic: {
-    name: "Produit Simple",
-    template: "{product} disponible maintenant ! À partir de 29€ #{shop}",
-    elements: ["title", "logo", "message", "cta"],
+    name: 'Instagram Basic',
+    description: 'Scénario basique pour Instagram',
+    template: 'basic',
     defaultContent: {
-      title: "Nouveau Produit",
-      message: "Disponible dès maintenant",
-      cta: "Voir plus"
+      title: 'Nouveau Post',
+      message: 'Suivez-nous pour plus de contenu !',
+      cta: 'Suivre',
+      contact: '@moncompte'
+    },
+    elements: ['title', 'message', 'cta', 'contact'],
+    style: {
+      backgroundColor: '#405de6',
+      textColor: '#ffffff',
+      accentColor: '#fd5949'
     }
   },
-  standard: {
-    name: "Lifestyle",
-    template: "Vivez l'expérience {shop} 📸 Quand qualité rime avec style de vie",
-    elements: ["title", "logo", "message", "cta"],
+
+  story: {
+    name: 'Instagram Story',
+    description: 'Format story Instagram',
+    template: 'standard',
     defaultContent: {
-      title: "Lifestyle",
-      message: "Vivez l'expérience unique",
-      cta: "Explorer"
+      title: 'Story du jour',
+      message: 'Ne ratez pas nos actualités !',
+      cta: 'Voir plus',
+      contact: '@moncompte',
+      shopName: 'Mon Brand'
+    },
+    elements: ['title', 'logo', 'message', 'cta', 'contact'],
+    style: {
+      backgroundColor: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)',
+      textColor: '#ffffff',
+      accentColor: '#ffffff'
     }
   },
+
   premium: {
-    name: "Collection Capsule",
-    template: "✨ COLLECTION CAPSULE EXCLUSIVE ✨ Découvrez nos pièces limitées chez {shop}",
-    elements: ["title", "logo", "message", "cta"],
+    name: 'Instagram Premium',
+    description: 'Post premium avec effets avancés',
+    template: 'standard',
     defaultContent: {
-      title: "Collection Capsule",
-      message: "Pièces limitées exclusives",
-      cta: "Shopper"
-    }
-  },
-  masterclass: {
-    name: "Behind the Scenes",
-    template: "Dans les coulisses de {shop} 🎬 Découvrez la passion qui anime notre équipe",
-    elements: ["title", "logo", "message", "cta"],
-    defaultContent: {
-      title: "Behind the Scenes",
-      message: "Découvrez nos coulisses",
-      cta: "Suivre"
+      title: 'Contenu Exclusif',
+      message: 'L\'excellence à votre portée',
+      cta: 'Explorer',
+      contact: '@premiumaccount',
+      shopName: 'Premium Collection'
+    },
+    elements: ['title', 'logo', 'message', 'cta', 'contact'],
+    style: {
+      backgroundColor: '#000000',
+      textColor: '#ffffff',
+      accentColor: '#ffd700'
     }
   }
 };

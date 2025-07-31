@@ -1,41 +1,24 @@
-
 module.exports = {
-  id: "pulse",
-  name: "Pulse",
-  category: "image",
-  subcategory: "scale",
-  icon: "💓",
-  description: "Pulsation rythmique de l'élément avec effet de battement.",
+  name: 'pulse',
+  type: 'image',
+  description: 'Effet de pulsation',
+  css: `
+    @keyframes imagePulse {
+      0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+      }
+      50% { 
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+      }
+    }
+    .effect-pulse {
+      animation: imagePulse 2s infinite;
+    }
+  `,
   parameters: {
-    vitesse: { type: "range", min: 0.5, max: 3, default: 2, description: "Vitesse de pulsation" },
-    amplitude: { type: "range", min: 0.1, max: 0.5, default: 0.2, description: "Amplitude du pulse" }
-  },
-  compatibility: { text: false, image: true, logo: true, background: false },
-  performance: "high",
-  preview: { gif: "pulse.gif", duration: 2000, loop: true },
-  tags: ["image", "scale", "heartbeat"],
-  
-  getEffectCode: function(elementId, params) {
-    const vitesse = params.vitesse || this.parameters.vitesse.default;
-    const amplitude = params.amplitude || this.parameters.amplitude.default;
-
-    const elementCss = `
-      #${elementId} {
-        animation: pulseEffect${elementId} ${1/vitesse}s ease-in-out infinite;
-      }
-    `;
-
-    const keyframesCss = `
-      @keyframes pulseEffect${elementId} {
-        0%, 100% { 
-          transform: scale(1);
-        }
-        50% { 
-          transform: scale(${1 + amplitude});
-        }
-      }
-    `;
-
-    return { elementCss, keyframesCss };
+    duration: { value: '2s', type: 'string' },
+    scale: { value: 1.05, type: 'number' }
   }
 };

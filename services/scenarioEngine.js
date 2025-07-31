@@ -23,8 +23,12 @@ class ScenarioEngine {
         for (const file of scenarioFiles) {
           const platform = file.replace('.js', '');
           const scenarioPath = path.join(scenariosDir, file);
-          delete require.cache[require.resolve(scenarioPath)];
-          scenarios[platform] = require(scenarioPath);
+          try {
+            delete require.cache[require.resolve(scenarioPath)];
+            scenarios[platform] = require(scenarioPath);
+          } catch (error) {
+            console.error(`Error loading scenario ${file}:`, error);
+          }
         }
       }
 
@@ -57,21 +61,28 @@ class ScenarioEngine {
     try {
       const scenario = await this.getScenarioTemplate(platform, scenarioType);
       if (!scenario) {
-        throw new Error(`Scenario not found: ${platform}/${scenarioType}`);
+        // Return default scenario if not found
+        return {
+          platform,
+          scenarioType,
+          template: 'default',
+          content: userContent || {},
+          elements: ['title', 'message', 'cta', 'contact']
+        };
       }
 
       // Replace template variables with user content
       let processedContent = { ...scenario.defaultContent };
       
       // Override with user-provided content
-      Object.keys(userContent).forEach(key => {
+      Object.keys(userContent || {}).forEach(key => {
         if (userContent[key]) {
           processedContent[key] = userContent[key];
         }
       });
 
       // Process template string with content
-      let processedTemplate = scenario.template;
+      let processedTemplate = scenario.template || 'default';
       Object.keys(processedContent).forEach(key => {
         const placeholder = `{${key}}`;
         processedTemplate = processedTemplate.replace(new RegExp(placeholder, 'g'), processedContent[key]);
@@ -82,11 +93,18 @@ class ScenarioEngine {
         scenarioType,
         template: processedTemplate,
         content: processedContent,
-        elements: scenario.elements
+        elements: scenario.elements || ['title', 'message', 'cta', 'contact']
       };
     } catch (error) {
       console.error('Error processing scenario:', error);
-      throw error;
+      // Return fallback scenario
+      return {
+        platform,
+        scenarioType,
+        template: 'default',
+        content: userContent || {},
+        elements: ['title', 'message', 'cta', 'contact']
+      };
     }
   }
 
@@ -94,7 +112,7 @@ class ScenarioEngine {
   async getScenarioTypes(platform) {
     const platformScenarios = await this.getScenarioByPlatform(platform);
     if (!platformScenarios) {
-      return [];
+      return ['basic'];
     }
     
     return Object.keys(platformScenarios);

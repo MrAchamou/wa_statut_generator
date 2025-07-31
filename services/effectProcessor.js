@@ -26,8 +26,12 @@ class EffectProcessor {
         for (const file of textFiles) {
           const effectName = file.replace('.js', '');
           const effectPath = path.join(textEffectsDir, file);
-          delete require.cache[require.resolve(effectPath)];
-          effects.text[effectName] = require(effectPath);
+          try {
+            delete require.cache[require.resolve(effectPath)];
+            effects.text[effectName] = require(effectPath);
+          } catch (error) {
+            console.error(`Error loading text effect ${file}:`, error);
+          }
         }
       }
 
@@ -38,8 +42,12 @@ class EffectProcessor {
         for (const file of imageFiles) {
           const effectName = file.replace('.js', '');
           const effectPath = path.join(imageEffectsDir, file);
-          delete require.cache[require.resolve(effectPath)];
-          effects.image[effectName] = require(effectPath);
+          try {
+            delete require.cache[require.resolve(effectPath)];
+            effects.image[effectName] = require(effectPath);
+          } catch (error) {
+            console.error(`Error loading image effect ${file}:`, error);
+          }
         }
       }
 
@@ -111,12 +119,17 @@ class EffectProcessor {
       html = html.replace(/\{\{cta\}\}/g, content.cta);
     }
     
-    if (content.logo) {
-      html = html.replace(/\{\{logo\}\}/g, content.logo);
+    if (content.logo || content.logoBase64) {
+      const logoSrc = content.logoBase64 || content.logo || '';
+      html = html.replace(/\{\{logo\}\}/g, logoSrc);
     }
 
     if (content.contact) {
       html = html.replace(/\{\{contact\}\}/g, content.contact);
+    }
+
+    if (content.shopName) {
+      html = html.replace(/\{\{shopName\}\}/g, content.shopName);
     }
 
     return html;
@@ -149,7 +162,13 @@ class EffectProcessor {
     // Inject CSS into the HTML
     if (allCss) {
       const styleTag = `<style>\n${allCss}\n</style>`;
-      modifiedHtml = modifiedHtml.replace('</head>', `${styleTag}\n</head>`);
+      if (modifiedHtml.includes('{{EFFECT_STYLES}}')) {
+        modifiedHtml = modifiedHtml.replace('{{EFFECT_STYLES}}', allCss);
+      } else {
+        modifiedHtml = modifiedHtml.replace('</head>', `${styleTag}\n</head>`);
+      }
+    } else {
+      modifiedHtml = modifiedHtml.replace('{{EFFECT_STYLES}}', '');
     }
 
     return modifiedHtml;
