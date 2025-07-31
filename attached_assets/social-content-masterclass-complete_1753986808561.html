@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 SOCIAL CONTENT MASTERCLASS - Dashboard Complet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ff6b6b 100%);
+            --gradient-gold: linear-gradient(135deg, #FFD700, #FFA500, #FF6347);
+            --gradient-neon: linear-gradient(135deg, #00ffff, #ff00ff, #ffff00);
+            --gradient-dark: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            --shadow-glow: 0 0 30px rgba(255, 255, 255, 0.3);
+            --shadow-deep: 0 20px 60px rgba(0, 0, 0, 0.3);
+            --border-neon: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .cosmic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, #120136, transparent 50%),
+                        radial-gradient(circle at 80% 20%, #1a0b2e, transparent 50%),
+                        radial-gradient(circle at 40% 80%, #16213e, transparent 50%),
+                        linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            z-index: -2;
+            animation: cosmicPulse 10s ease-in-out infinite;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes cosmicPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(2deg); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        /* Header Masterclass */
+        .masterclass-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--gradient-primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .masterclass-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: rotate 20s linear infinite;
+        }
+
+        .masterclass-title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            background: var(--gradient-neon);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 3s ease-in-out infinite;
+            cursor: pointer;
+        }
+
+        .masterclass-subtitle {
+            font-size: 1.4rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3) saturate(1.2); }
+        }
+
+        /* Main Layout */
+        .masterclass-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr 380px;
+            gap: 25px;
+            margin: 30px 0;
+            min-height: 90vh;
+        }
+
+        .panel {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .panel::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .panel::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 10px;
+        }
+
+        .panel h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Platform Selector */
+        .platform-selector {
+            margin-bottom: 30px;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .platform-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            font-size: 0.8rem;
+        }
+
+        .platform-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .platform-card.active {
+            border: 2px solid #00ffff;
+            background: rgba(0,255,255,0.1);
+            transform: scale(1.05);
+        }
+
+        .platform-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* Scenario Selector */
+        .scenario-selector {
+            margin-bottom: 30px;
+        }
+
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .scenario-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+        }
+
+        .scenario-card:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .scenario-card.active {
+            border: 2px solid #ff6b6b;
+            background: rgba(255,107,107,0.2);
+        }
+
+        .scenario-level {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .scenario-name {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0,255,255,0.3);
+            transform: scale(1.02);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Effect Selectors */
+        .effect-selector {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid rgba(0,255,255,0.2);
+        }
+
+        .effect-selector label {
+            color: #00ffff;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .effect-selector label::before {
+            content: "✨";
+            font-size: 1rem;
+        }
+
+        .effect-dropdown {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(0,255,255,0.3);
+            border-radius: 6px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .effect-dropdown:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0,255,255,0.2);
+        }
+
+        .effect-dropdown option {
+            background: #1a1a1a;
+            color: white;
+            padding: 6px;
+        }
+
+        /* Preview Stage */
+        .preview-stage {
+            background: #000;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            min-height: 700px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Device Controls */
+        .device-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .device-control-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .device-control-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-control-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .device-control-btn.active {
+            background: var(--gradient-neon);
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* Device Simulator */
+        .device-simulator {
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .device-frame {
+            position: relative;
+            border-radius: 25px;
+            padding: 20px;
+            border: 3px solid #333;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        /* iPhone Frame */
+        .device-frame.iphone {
+            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            border: 3px solid #444;
+        }
+
+        .device-frame.iphone::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 6px;
+            background: #666;
+            border-radius: 3px;
+            z-index: 10;
+        }
+
+        /* Android Frame */
+        .device-frame.android {
+            background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+            border: 3px solid #333;
+        }
+
+        .device-frame.android::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background: #555;
+            border-radius: 2px;
+            z-index: 10;
+        }
+
+        /* Device Screen */
+        .device-screen {
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            background: var(--gradient-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Format Sizes */
+        .format-9-16 { width: 280px; height: 498px; }
+        .format-1-1 { width: 350px; height: 350px; }
+        .format-16-9 { width: 480px; height: 270px; }
+        .format-4-5 { width: 320px; height: 400px; }
+
+        /* Content Elements with Structured Layout */
+        .content-layout {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: grid;
+            grid-template-areas: 
+                "header header"
+                "logo title"
+                "content content"
+                "cta cta"
+                "footer footer";
+            grid-template-rows: auto 1fr auto auto auto;
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .content-element {
+            position: relative;
+            z-index: 5;
+            transition: all 0.3s ease;
+        }
+
+        .content-header {
+            grid-area: header;
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .content-title {
+            grid-area: title;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-logo {
+            grid-area: logo;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-logo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .content-main {
+            grid-area: content;
+            text-align: center;
+            font-size: 1rem;
+            line-height: 1.4;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .content-cta {
+            grid-area: cta;
+            text-align: center;
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            font-weight: bold;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .content-cta:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+
+        .content-footer {
+            grid-area: footer;
+            text-align: center;
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+
+        /* Canvas for Effects */
+        .effect-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Export Panel */
+        .export-controls {
+            margin-top: 30px;
+        }
+
+        .export-format-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .export-format-btn {
+            padding: 12px;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .export-format-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .export-format-btn.active {
+            border-color: #00ff00;
+            background: rgba(0,255,0,0.2);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-gold {
+            background: var(--gradient-gold);
+            color: #000;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-neon {
+            background: var(--gradient-neon);
+            color: #000;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .btn-full {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        /* Status Indicators */
+        .backend-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .backend-status.connected {
+            background: rgba(0,255,0,0.2);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
+
+        .backend-status.disconnected {
+            background: rgba(255,0,0,0.2);
+            border: 1px solid #ff0000;
+            color: #ff0000;
+        }
+
+        .backend-status.connecting {
+            background: rgba(255,255,0,0.2);
+            border: 1px solid #ffff00;
+            color: #ffff00;
+        }
+
+        /* Statistics Panel */
+        .stats-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00ffff;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1400px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .panel {
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .platform-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .scenario-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .device-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .format-9-16 { width: 240px; height: 427px; }
+            .format-1-1 { width: 300px; height: 300px; }
+            .format-16-9 { width: 400px; height: 225px; }
+            .format-4-5 { width: 280px; height: 350px; }
+        }
+
+        /* Animation Classes for Effects */
+        .effect-crystalgrow {
+            animation: crystalGrow 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px #8b5cf6);
+        }
+
+        .effect-neonpulse {
+            animation: neonPulse 1.5s ease-in-out infinite;
+            text-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+        }
+
+        .effect-rotate {
+            animation: rotateEffect 3s linear infinite;
+        }
+
+        .effect-pulse {
+            animation: pulseEffect 2s ease-in-out infinite;
+        }
+
+        .effect-glitch {
+            animation: glitchEffect 0.3s ease-in-out infinite;
+        }
+
+        @keyframes crystalGrow {
+            0%, 100% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg); }
+            50% { transform: scale(1.1) rotate(2deg); filter: hue-rotate(180deg); }
+        }
+
+        @keyframes neonPulse {
+            0%, 100% { text-shadow: 0 0 20px #00ffff; }
+            50% { text-shadow: 0 0 40px #00ffff, 0 0 60px #ff00ff; }
+        }
+
+        @keyframes rotateEffect {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulseEffect {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @keyframes glitchEffect {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-2px); }
+            40% { transform: translateX(2px); }
+            60% { transform: translateX(-1px); }
+            80% { transform: translateX(1px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background cosmique animé -->
+    <div class="cosmic-bg"></div>
+    <div class="stars" id="stars"></div>
+
+    <!-- Status de connexion backend -->
+    <div id="backend-status" class="backend-status disconnected">
+        🔌 Backend Déconnecté
+    </div>
+
+    <!-- Header Masterclass -->
+    <header class="masterclass-header">
+        <h1 class="masterclass-title" onclick="triggerTitleEffect()">
+            🚀 SOCIAL CONTENT MASTERCLASS
+        </h1>
+        <p class="masterclass-subtitle">
+            Dashboard Complet - Générateur Multi-Plateformes avec Scénarios & Effets Spéciaux
+        </p>
+    </header>
+
+    <div class="masterclass-container">
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Panel de Configuration -->
+            <div class="panel">
+                <h3>⚙️ Configuration</h3>
+                
+                <!-- Sélecteur de Plateforme -->
+                <div class="platform-selector">
+                    <label>🎯 Plateforme Cible</label>
+                    <div class="platform-grid">
+                        <div class="platform-card active" data-platform="whatsapp" onclick="selectPlatform('whatsapp')">
+                            <div class="platform-icon">📱</div>
+                            <div>WhatsApp</div>
+                        </div>
+                        <div class="platform-card" data-platform="instagram" onclick="selectPlatform('instagram')">
+                            <div class="platform-icon">📸</div>
+                            <div>Instagram</div>
+                        </div>
+                        <div class="platform-card" data-platform="facebook" onclick="selectPlatform('facebook')">
+                            <div class="platform-icon">👥</div>
+                            <div>Facebook</div>
+                        </div>
+                        <div class="platform-card" data-platform="tiktok" onclick="selectPlatform('tiktok')">
+                            <div class="platform-icon">🎵</div>
+                            <div>TikTok</div>
+                        </div>
+                        <div class="platform-card" data-platform="youtube" onclick="selectPlatform('youtube')">
+                            <div class="platform-icon">🎬</div>
+                            <div>YouTube</div>
+                        </div>
+                        <div class="platform-card" data-platform="linkedin" onclick="selectPlatform('linkedin')">
+                            <div class="platform-icon">💼</div>
+                            <div>LinkedIn</div>
+                        </div>
+                        <div class="platform-card" data-platform="twitter" onclick="selectPlatform('twitter')">
+                            <div class="platform-icon">🐦</div>
+                            <div>Twitter</div>
+                        </div>
+                        <div class="platform-card" data-platform="product" onclick="selectPlatform('product')">
+                            <div class="platform-icon">🛍️</div>
+                            <div>Produit</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sélecteur de Scénario -->
+                <div class="scenario-selector">
+                    <label>🎬 Scénario de Contenu</label>
+                    <div class="scenario-grid">
+                        <div class="scenario-card active" data-scenario="basic" onclick="selectScenario('basic')">
+                            <div class="scenario-level">✨ BASIC</div>
+                            <div class="scenario-name">Simple</div>
+                        </div>
+                        <div class="scenario-card" data-scenario="standard" onclick="selectScenario('standard')">
+                            <div class="scenario-level">⭐ STANDARD</div>
+                            <div class="scenario-name">Dynamique</div>
+                        </div>
+                        <div class="scenario-card" data-scenario="premium" onclick="selectScenario('premium')">
+                            <div class="scenario-level">💎 PREMIUM</div>
+                            <div class="scenario-name">Premium</div>
+                        </div>
+                        <div class="scenario-card" data-scenario="masterclass" onclick="selectScenario('masterclass')">
+                            <div class="scenario-level">🚀 MASTERCLASS</div>
+                            <div class="scenario-name">Cinématique</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations Boutique -->
+                <div class="form-group">
+                    <label for="shop-name">🏪 Nom de la Boutique</label>
+                    <input type="text" id="shop-name" class="form-control" placeholder="Nom de votre boutique..." maxlength="50">
+                </div>
+
+                <div class="form-group">
+                    <label for="shop-sector">🏷️ Secteur d'Activité</label>
+                    <select id="shop-sector" class="form-control">
+                        <option value="">Sélectionnez votre secteur</option>
+                        <option value="mode">Mode & Vêtements</option>
+                        <option value="beaute">Beauté & Cosmétiques</option>
+                        <option value="tech">Technologie</option>
+                        <option value="food">Alimentation & Restauration</option>
+                        <option value="sport">Sport & Fitness</option>
+                        <option value="maison">Maison & Décoration</option>
+                        <option value="auto">Automobile</option>
+                        <option value="sante">Santé & Bien-être</option>
+                        <option value="education">Éducation & Formation</option>
+                        <option value="services">Services</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="target-audience">👥 Public Cible</label>
+                    <select id="target-audience" class="form-control">
+                        <option value="">Sélectionnez votre public</option>
+                        <option value="jeune">Jeunes (18-25 ans)</option>
+                        <option value="adulte">Adultes (26-40 ans)</option>
+                        <option value="senior">Seniors (40+ ans)</option>
+                        <option value="famille">Familles</option>
+                        <option value="professionnel">Professionnels</option>
+                        <option value="etudiant">Étudiants</option>
+                        <option value="mixte">Public mixte</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mood-selector">🎨 Ambiance Souhaitée</label>
+                    <select id="mood-selector" class="form-control" onchange="updateMood()">
+                        <option value="sobre">Sobre & Professionnel</option>
+                        <option value="dynamique">Dynamique & Énergique</option>
+                        <option value="flashy">Flashy & Vibrant</option>
+                        <option value="premium">Premium & Élégant</option>
+                        <option value="fun">Fun & Ludique</option>
+                    </select>
+                </div>
+
+                <!-- Statistiques -->
+                <div class="stats-panel">
+                    <h4 style="color: #00ffff; margin-bottom: 15px; text-align: center;">📊 Statistiques Live</h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="active-effects">0</div>
+                            <div class="stat-label">Effets Actifs</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="performance-score">100%</div>
+                            <div class="stat-label">Performance</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="render-time">0ms</div>
+                            <div class="stat-label">Temps Rendu</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="scenario-elements">4</div>
+                            <div class="stat-label">Éléments</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone de Prévisualisation -->
+            <div class="panel">
+                <h3>📱 Prévisualisation Live</h3>
+                
+                <!-- Contrôles du Device -->
+                <div class="device-controls">
+                    <div class="device-control-group">
+                        <span style="font-size: 0.8rem; opacity: 0.8;">Device:</span>
+                        <button class="device-control-btn active" data-device="iphone" onclick="selectDevice('iphone')">📱 iPhone</button>
+                        <button class="device-control-btn" data-device="android" onclick="selectDevice('android')">🤖 Android</button>
+                    </div>
+                    <div class="device-control-group">
+                        <span style="font-size: 0.8rem; opacity: 0.8;">Format:</span>
+                        <button class="device-control-btn active" data-format="9-16" onclick="selectFormat('9-16')">9:16</button>
+                        <button class="device-control-btn" data-format="1-1" onclick="selectFormat('1-1')">1:1</button>
+                        <button class="device-control-btn" data-format="16-9" onclick="selectFormat('16-9')">16:9</button>
+                        <button class="device-control-btn" data-format="4-5" onclick="selectFormat('4-5')">4:5</button>
+                    </div>
+                </div>
+                
+                <div class="preview-stage">
+                    <div class="device-simulator">
+                        <div id="device-frame" class="device-frame iphone format-9-16">
+                            <div class="device-screen">
+                                <!-- Canvas pour les effets -->
+                                <canvas id="effect-canvas" class="effect-canvas"></canvas>
+                                
+                                <!-- Layout structuré du contenu -->
+                                <div class="content-layout">
+                                    <div class="content-header content-element" id="content-header">
+                                        📱 WhatsApp Status
+                                    </div>
+                                    
+                                    <div class="content-logo content-element" id="content-logo">
+                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='35' fill='%23667eea'/%3E%3Ctext x='40' y='45' text-anchor='middle' fill='white' font-size='24'%3E🚀%3C/text%3E%3C/svg%3E" alt="Logo">
+                                    </div>
+                                    
+                                    <div class="content-title content-element" id="content-title">
+                                        Votre Titre Ici
+                                    </div>
+                                    
+                                    <div class="content-main content-element" id="content-main">
+                                        Votre message principal apparaîtra ici selon le scénario sélectionné.
+                                    </div>
+                                    
+                                    <div class="content-cta content-element" id="content-cta">
+                                        Contactez-nous !
+                                    </div>
+                                    
+                                    <div class="content-footer content-element" id="content-footer">
+                                        Votre Boutique
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons d'Action -->
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-primary btn-full" onclick="generatePreview()">
+                        🎨 Générer Aperçu
+                    </button>
+                    <button class="btn btn-gold btn-full" onclick="generateWithBackend()">
+                        🚀 Générer avec Backend
+                    </button>
+                </div>
+            </div>
+
+            <!-- Panel de Contenu et Export -->
+            <div class="panel">
+                <h3>📝 Contenu & Export</h3>
+                
+                <!-- Éléments du Scénario avec Effets -->
+                <div id="scenario-elements">
+                    <!-- Titre -->
+                    <div class="form-group">
+                        <label for="element-title">🎯 Titre Principal</label>
+                        <input type="text" id="element-title" class="form-control" placeholder="Votre titre accrocheur..." maxlength="100" oninput="updatePreview()">
+                        
+                        <div class="effect-selector">
+                            <label for="title-effect">Effet Spécial</label>
+                            <select id="title-effect" class="effect-dropdown" onchange="applyEffect('content-title', this.value)">
+                                <option value="">Aucun effet</option>
+                                <optgroup label="🔥 Effets Texte">
+                                    <option value="crystalgrow">💎 Crystal Grow</option>
+                                    <option value="neonpulse">⚡ Neon Pulse</option>
+                                    <option value="glitch">📺 Glitch</option>
+                                    <option value="pulse">💓 Pulse</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Logo -->
+                    <div class="form-group">
+                        <label for="element-logo">🖼️ Logo/Image</label>
+                        <input type="file" id="element-logo" class="form-control" accept="image/*" onchange="handleImageUpload(this, 'logo')">
+                        
+                        <div class="effect-selector">
+                            <label for="logo-effect">Effet Spécial</label>
+                            <select id="logo-effect" class="effect-dropdown" onchange="applyEffect('content-logo', this.value)">
+                                <option value="">Aucun effet</option>
+                                <optgroup label="🖼️ Effets Image">
+                                    <option value="rotate">🔄 Rotation</option>
+                                    <option value="pulse">💓 Pulse</option>
+                                    <option value="glitch">📺 Glitch</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Message Principal -->
+                    <div class="form-group">
+                        <label for="element-message">💬 Message Principal</label>
+                        <textarea id="element-message" class="form-control" placeholder="Votre message principal..." rows="3" oninput="updatePreview()"></textarea>
+                        
+                        <div class="effect-selector">
+                            <label for="message-effect">Effet Spécial</label>
+                            <select id="message-effect" class="effect-dropdown" onchange="applyEffect('content-main', this.value)">
+                                <option value="">Aucun effet</option>
+                                <optgroup label="📝 Effets Texte">
+                                    <option value="crystalgrow">💎 Crystal Grow</option>
+                                    <option value="neonpulse">⚡ Neon Pulse</option>
+                                    <option value="glitch">📺 Glitch</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Call-to-Action -->
+                    <div class="form-group">
+                        <label for="element-cta">🎯 Call-to-Action</label>
+                        <input type="text" id="element-cta" class="form-control" placeholder="Votre appel à l'action..." maxlength="50" oninput="updatePreview()">
+                        
+                        <div class="effect-selector">
+                            <label for="cta-effect">Effet Spécial</label>
+                            <select id="cta-effect" class="effect-dropdown" onchange="applyEffect('content-cta', this.value)">
+                                <option value="">Aucun effet</option>
+                                <optgroup label="🎯 Effets CTA">
+                                    <option value="neonpulse">⚡ Neon Pulse</option>
+                                    <option value="pulse">💓 Pulse</option>
+                                    <option value="glitch">📺 Glitch</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Contact -->
+                    <div class="form-group">
+                        <label for="element-contact">📞 Contact</label>
+                        <input type="text" id="element-contact" class="form-control" placeholder="Numéro, email ou adresse..." maxlength="100" oninput="updatePreview()">
+                    </div>
+                </div>
+
+                <!-- Export Controls -->
+                <div class="export-controls">
+                    <h4 style="color: #00ffff; margin-bottom: 15px;">💾 Export</h4>
+                    
+                    <div class="export-format-grid">
+                        <div class="export-format-btn active" data-format="mp4" onclick="selectExportFormat('mp4')">
+                            🎬 MP4 Vidéo
+                        </div>
+                        <div class="export-format-btn" data-format="gif" onclick="selectExportFormat('gif')">
+                            🎞️ GIF Animé
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="export-quality">🎯 Qualité</label>
+                        <select id="export-quality" class="form-control">
+                            <option value="high">Haute (1080p)</option>
+                            <option value="medium">Moyenne (720p)</option>
+                            <option value="low">Basse (480p)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="export-duration">⏱️ Durée (secondes)</label>
+                        <input type="range" id="export-duration" class="form-control" min="3" max="30" value="10" oninput="updateDurationValue()">
+                        <div style="text-align: center; color: #00ffff; margin-top: 5px;">
+                            <span id="duration-value">10</span> secondes
+                        </div>
+                    </div>
+
+                    <button class="btn btn-neon btn-full" onclick="exportContent()">
+                        🎬 Exporter Vidéo
+                    </button>
+                    
+                    <button class="btn btn-primary btn-full" onclick="shareContent()">
+                        📤 Partager
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="backend-connector.js"></script>
+    <script src="effect-manager.js"></script>
+    <script>
+        // Variables globales
+        let currentPlatform = 'whatsapp';
+        let currentScenario = 'basic';
+        let currentDevice = 'iphone';
+        let currentFormat = '9-16';
+        let currentMood = 'sobre';
+        let exportFormat = 'mp4';
+        
+        let backendConnector = null;
+        let effectManager = null;
+        let isBackendConnected = false;
+
+        // Scénarios par plateforme
+        const scenarios = {
+            whatsapp: {
+                basic: {
+                    name: "Message Simple",
+                    template: "Bienvenue chez {shop} ! Votre {sector} de confiance. Contactez-nous au {contact}",
+                    elements: ["title", "logo", "message", "cta", "contact"]
+                },
+                standard: {
+                    name: "Offre du Jour",
+                    template: "🔥 OFFRE DU JOUR ! {product} chez {shop}. Commandez maintenant !",
+                    elements: ["title", "logo", "message", "cta", "contact"]
+                },
+                premium: {
+                    name: "Nouvelle Collection",
+                    template: "✨ NOUVELLE COLLECTION ! Découvrez nos dernières créations chez {shop}. Qualité premium, prix imbattables.",
+                    elements: ["title", "logo", "message", "cta", "contact"]
+                },
+                masterclass: {
+                    name: "Storytelling",
+                    template: "Il était une fois une passion... Celle de vous offrir le meilleur. Chez {shop}, chaque produit raconte une histoire. La vôtre commence ici.",
+                    elements: ["title", "logo", "message", "cta", "contact"]
+                }
+            },
+            instagram: {
+                basic: {
+                    name: "Produit Simple",
+                    template: "{product} disponible maintenant ! À partir de {price} #{shop}",
+                    elements: ["title", "logo", "message", "cta"]
+                },
+                standard: {
+                    name: "Lifestyle",
+                    template: "Vivez l'expérience {shop} 📸 Quand qualité rime avec style de vie",
+                    elements: ["title", "logo", "message", "cta"]
+                },
+                premium: {
+                    name: "Collection Capsule",
+                    template: "✨ COLLECTION CAPSULE EXCLUSIVE ✨ Découvrez nos pièces limitées chez {shop}",
+                    elements: ["title", "logo", "message", "cta"]
+                },
+                masterclass: {
+                    name: "Behind the Scenes",
+                    template: "Dans les coulisses de {shop} 🎬 Découvrez la passion qui anime notre équipe",
+                    elements: ["title", "logo", "message", "cta"]
+                }
+            }
+            // Autres plateformes...
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeStars();
+            initializeCanvas();
+            initializeBackend();
+            updateScenarioContent();
+        });
+
+        // Génération des étoiles
+        function initializeStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Initialisation du canvas
+        function initializeCanvas() {
+            const canvas = document.getElementById('effect-canvas');
+            effectManager = new EffectManager(canvas);
+            
+            function resizeCanvas() {
+                const deviceScreen = document.querySelector('.device-screen');
+                if (deviceScreen && canvas) {
+                    canvas.width = deviceScreen.offsetWidth;
+                    canvas.height = deviceScreen.offsetHeight;
+                }
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+        }
+
+        // Initialisation du backend
+        async function initializeBackend() {
+            backendConnector = new BackendConnector();
+            isBackendConnected = await backendConnector.initialize();
+            updateBackendStatus();
+        }
+
+        // Mise à jour du statut backend
+        function updateBackendStatus() {
+            const statusElement = document.getElementById('backend-status');
+            if (isBackendConnected) {
+                statusElement.className = 'backend-status connected';
+                statusElement.textContent = '✅ Backend Connecté';
+            } else {
+                statusElement.className = 'backend-status disconnected';
+                statusElement.textContent = '❌ Mode Local';
+            }
+        }
+
+        // Sélection de plateforme
+        function selectPlatform(platform) {
+            document.querySelectorAll('.platform-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-platform="${platform}"]`).classList.add('active');
+            
+            currentPlatform = platform;
+            updateScenarioContent();
+            updateDeviceFrame();
+            updatePreview();
+        }
+
+        // Sélection de scénario
+        function selectScenario(scenario) {
+            document.querySelectorAll('.scenario-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-scenario="${scenario}"]`).classList.add('active');
+            
+            currentScenario = scenario;
+            updateScenarioContent();
+            updatePreview();
+        }
+
+        // Sélection de device
+        function selectDevice(device) {
+            document.querySelectorAll('[data-device]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-device="${device}"]`).classList.add('active');
+            
+            currentDevice = device;
+            updateDeviceFrame();
+        }
+
+        // Sélection de format
+        function selectFormat(format) {
+            document.querySelectorAll('[data-format]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-format="${format}"]`).classList.add('active');
+            
+            currentFormat = format;
+            updateDeviceFrame();
+        }
+
+        // Sélection du format d'export
+        function selectExportFormat(format) {
+            document.querySelectorAll('.export-format-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-format="${format}"]`).classList.add('active');
+            
+            exportFormat = format;
+        }
+
+        // Mise à jour du frame du device
+        function updateDeviceFrame() {
+            const deviceFrame = document.getElementById('device-frame');
+            deviceFrame.className = `device-frame ${currentDevice} format-${currentFormat}`;
+            
+            // Mise à jour du header selon la plateforme
+            const contentHeader = document.getElementById('content-header');
+            const platformIcons = {
+                whatsapp: '📱 WhatsApp Status',
+                instagram: '📸 Instagram Post',
+                facebook: '👥 Facebook Post',
+                tiktok: '🎵 TikTok Video',
+                youtube: '🎬 YouTube Thumbnail',
+                linkedin: '💼 LinkedIn Post',
+                twitter: '🐦 Twitter Post',
+                product: '🛍️ Produit Showcase'
+            };
+            contentHeader.textContent = platformIcons[currentPlatform] || '📱 Social Media';
+            
+            // Redimensionner le canvas
+            setTimeout(() => {
+                const deviceScreen = document.querySelector('.device-screen');
+                const canvas = document.getElementById('effect-canvas');
+                if (deviceScreen && canvas) {
+                    canvas.width = deviceScreen.offsetWidth;
+                    canvas.height = deviceScreen.offsetHeight;
+                }
+            }, 100);
+        }
+
+        // Mise à jour du contenu du scénario
+        function updateScenarioContent() {
+            const scenario = scenarios[currentPlatform]?.[currentScenario];
+            if (!scenario) return;
+            
+            // Mise à jour des placeholders selon le scénario
+            const titleInput = document.getElementById('element-title');
+            const messageInput = document.getElementById('element-message');
+            const ctaInput = document.getElementById('element-cta');
+            
+            titleInput.placeholder = `Titre pour ${scenario.name}...`;
+            messageInput.placeholder = scenario.template;
+            ctaInput.placeholder = getCtaPlaceholder();
+            
+            updatePreview();
+        }
+
+        // Placeholder CTA selon la plateforme
+        function getCtaPlaceholder() {
+            const ctaPlaceholders = {
+                whatsapp: 'Contactez-nous !',
+                instagram: 'Voir plus',
+                facebook: 'En savoir plus',
+                tiktok: 'Suivez-nous',
+                youtube: 'Regarder',
+                linkedin: 'Découvrir',
+                twitter: 'Lire la suite',
+                product: 'Acheter maintenant'
+            };
+            return ctaPlaceholders[currentPlatform] || 'Action';
+        }
+
+        // Mise à jour de l'aperçu
+        function updatePreview() {
+            const shopName = document.getElementById('shop-name').value || 'Votre Boutique';
+            const title = document.getElementById('element-title').value || 'Votre Titre Ici';
+            const message = document.getElementById('element-message').value || 'Votre message principal apparaîtra ici selon le scénario sélectionné.';
+            const cta = document.getElementById('element-cta').value || getCtaPlaceholder();
+            const contact = document.getElementById('element-contact').value || '';
+            
+            // Mise à jour des éléments
+            document.getElementById('content-title').textContent = title;
+            document.getElementById('content-main').textContent = message;
+            document.getElementById('content-cta').textContent = cta;
+            document.getElementById('content-footer').textContent = shopName;
+            
+            // Mise à jour des statistiques
+            updateStats();
+        }
+
+        // Application d'un effet
+        function applyEffect(elementId, effectId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            // Retirer les classes d'effet existantes
+            element.className = element.className.replace(/effect-\w+/g, '');
+            
+            // Ajouter le nouvel effet
+            if (effectId) {
+                element.classList.add(`effect-${effectId}`);
+            }
+            
+            updateStats();
+        }
+
+        // Gestion de l'upload d'image
+        function handleImageUpload(input, target) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const logoImg = document.querySelector('#content-logo img');
+                    logoImg.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Mise à jour de l'ambiance
+        function updateMood() {
+            currentMood = document.getElementById('mood-selector').value;
+            // Ici on pourrait ajuster les couleurs et effets selon l'ambiance
+        }
+
+        // Mise à jour de la valeur de durée
+        function updateDurationValue() {
+            const duration = document.getElementById('export-duration').value;
+            document.getElementById('duration-value').textContent = duration;
+        }
+
+        // Génération de l'aperçu
+        function generatePreview() {
+            updatePreview();
+            
+            // Animation de génération
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '🎨 Génération...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                
+                // Effet de succès
+                const deviceFrame = document.getElementById('device-frame');
+                deviceFrame.style.animation = 'pulse 0.5s ease';
+                setTimeout(() => {
+                    deviceFrame.style.animation = '';
+                }, 500);
+            }, 1500);
+        }
+
+        // Génération avec backend
+        async function generateWithBackend() {
+            if (!isBackendConnected) {
+                alert('Backend non connecté. Utilisation du mode local.');
+                generatePreview();
+                return;
+            }
+            
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '🚀 Génération...';
+            btn.disabled = true;
+            
+            try {
+                const requestData = {
+                    platform: currentPlatform,
+                    scenario: currentScenario,
+                    device: currentDevice,
+                    format: currentFormat,
+                    mood: currentMood,
+                    content: {
+                        shopName: document.getElementById('shop-name').value,
+                        sector: document.getElementById('shop-sector').value,
+                        audience: document.getElementById('target-audience').value,
+                        title: document.getElementById('element-title').value,
+                        message: document.getElementById('element-message').value,
+                        cta: document.getElementById('element-cta').value,
+                        contact: document.getElementById('element-contact').value
+                    },
+                    effects: {
+                        title: document.getElementById('title-effect').value,
+                        logo: document.getElementById('logo-effect').value,
+                        message: document.getElementById('message-effect').value,
+                        cta: document.getElementById('cta-effect').value
+                    }
+                };
+                
+                const result = await backendConnector.generateContent(requestData);
+                
+                if (result.success) {
+                    console.log('Contenu généré avec succès:', result);
+                    // Ici on pourrait injecter le HTML généré
+                } else {
+                    throw new Error(result.error);
+                }
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la génération. Utilisation du mode local.');
+                generatePreview();
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Export du contenu
+        function exportContent() {
+            const quality = document.getElementById('export-quality').value;
+            const duration = document.getElementById('export-duration').value;
+            
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '🎬 Export...';
+            btn.disabled = true;
+            
+            // Simulation d'export
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                
+                alert(`Export ${exportFormat.toUpperCase()} terminé !\nQualité: ${quality}\nDurée: ${duration}s`);
+            }, 3000);
+        }
+
+        // Partage du contenu
+        function shareContent() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Mon contenu Social Content Masterclass',
+                    text: 'Regardez ce contenu créé avec Social Content Masterclass!',
+                    url: window.location.href
+                });
+            } else {
+                const url = window.location.href;
+                navigator.clipboard.writeText(url);
+                alert('Lien copié dans le presse-papier!');
+            }
+        }
+
+        // Mise à jour des statistiques
+        function updateStats() {
+            const activeEffectsCount = document.querySelectorAll('[class*="effect-"]').length;
+            const performanceScore = Math.max(100 - (activeEffectsCount * 10), 60);
+            const renderTime = Math.random() * 50 + 10;
+            
+            document.getElementById('active-effects').textContent = activeEffectsCount;
+            document.getElementById('performance-score').textContent = performanceScore + '%';
+            document.getElementById('render-time').textContent = Math.round(renderTime) + 'ms';
+        }
+
+        // Effet sur le titre principal
+        function triggerTitleEffect() {
+            const title = document.querySelector('.masterclass-title');
+            title.style.animation = 'none';
+            setTimeout(() => {
+                title.style.animation = 'titleGlow 3s ease-in-out infinite, bounce 0.5s ease';
+            }, 10);
+        }
+    </script>
+</body>
+</html>
+
