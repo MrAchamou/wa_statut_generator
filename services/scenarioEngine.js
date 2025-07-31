@@ -7,70 +7,102 @@ class ScenarioEngine {
     this.scenariosCache = null;
   }
 
-  // Load all scenarios from local files
-  async loadAllScenarios() {
+  // Load all scenarios from the scenarios directory
+  async getAllScenarios() {
     if (this.scenariosCache) {
       return this.scenariosCache;
     }
 
-    const scenariosDir = path.join(__dirname, '../scenarios');
     const scenarios = {};
 
     try {
-      const files = fs.readdirSync(scenariosDir);
-      
-      for (const file of files) {
-        if (file.endsWith('.js')) {
-          try {
-            const platform = file.replace('.js', '');
-            const scenarioPath = path.join(scenariosDir, file);
-            scenarios[platform] = require(scenarioPath);
-          } catch (error) {
-            console.error(`Error loading scenario ${file}:`, error);
-          }
+      const scenariosDir = path.join(__dirname, '../scenarios');
+      if (fs.existsSync(scenariosDir)) {
+        const scenarioFiles = fs.readdirSync(scenariosDir).filter(file => file.endsWith('.js'));
+        
+        for (const file of scenarioFiles) {
+          const platform = file.replace('.js', '');
+          const scenarioPath = path.join(scenariosDir, file);
+          delete require.cache[require.resolve(scenarioPath)];
+          scenarios[platform] = require(scenarioPath);
         }
       }
+
+      this.scenariosCache = scenarios;
+      return scenarios;
     } catch (error) {
-      console.error('Error reading scenarios directory:', error);
+      console.error('Error loading scenarios:', error);
+      return scenarios;
     }
-
-    this.scenariosCache = scenarios;
-    return scenarios;
   }
 
-  // Get specific scenario
-  async getScenario(platform, scenario) {
-    const scenarios = await this.loadAllScenarios();
-    return scenarios[platform]?.[scenario];
+  // Get scenario by platform
+  async getScenarioByPlatform(platform) {
+    const allScenarios = await this.getAllScenarios();
+    return allScenarios[platform] || null;
   }
 
-  // Process content with scenario template
-  processContent(scenarioData, content) {
-    if (!scenarioData || !content) {
-      return content;
+  // Get scenario template by platform and type
+  async getScenarioTemplate(platform, scenarioType = 'basic') {
+    const platformScenarios = await this.getScenarioByPlatform(platform);
+    if (!platformScenarios) {
+      return null;
     }
-
-    let processedTemplate = scenarioData.template || '';
     
-    // Replace placeholders in template
-    const replacements = {
-      '{shop}': content.shopName || 'Votre Boutique',
-      '{sector}': content.sector || 'votre secteur',
-      '{product}': content.title || 'nos produits',
-      '{price}': '29€',
-      '{contact}': content.contact || '+33123456789'
-    };
+    return platformScenarios[scenarioType] || null;
+  }
 
-    for (const [placeholder, value] of Object.entries(replacements)) {
-      processedTemplate = processedTemplate.replace(new RegExp(placeholder, 'g'), value);
+  // Process scenario with user content
+  async processScenario(platform, scenarioType, userContent) {
+    try {
+      const scenario = await this.getScenarioTemplate(platform, scenarioType);
+      if (!scenario) {
+        throw new Error(`Scenario not found: ${platform}/${scenarioType}`);
+      }
+
+      // Replace template variables with user content
+      let processedContent = { ...scenario.defaultContent };
+      
+      // Override with user-provided content
+      Object.keys(userContent).forEach(key => {
+        if (userContent[key]) {
+          processedContent[key] = userContent[key];
+        }
+      });
+
+      // Process template string with content
+      let processedTemplate = scenario.template;
+      Object.keys(processedContent).forEach(key => {
+        const placeholder = `{${key}}`;
+        processedTemplate = processedTemplate.replace(new RegExp(placeholder, 'g'), processedContent[key]);
+      });
+
+      return {
+        platform,
+        scenarioType,
+        template: processedTemplate,
+        content: processedContent,
+        elements: scenario.elements
+      };
+    } catch (error) {
+      console.error('Error processing scenario:', error);
+      throw error;
     }
+  }
 
-    return {
-      title: content.title || scenarioData.defaultContent?.title || 'Titre',
-      message: content.message || processedTemplate,
-      cta: content.cta || scenarioData.defaultContent?.cta || 'Action',
-      footer: content.shopName || 'Boutique'
-    };
+  // Get available scenario types for a platform
+  async getScenarioTypes(platform) {
+    const platformScenarios = await this.getScenarioByPlatform(platform);
+    if (!platformScenarios) {
+      return [];
+    }
+    
+    return Object.keys(platformScenarios);
+  }
+
+  // Clear scenarios cache
+  clearCache() {
+    this.scenariosCache = null;
   }
 }
 
