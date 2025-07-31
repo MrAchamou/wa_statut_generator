@@ -25,6 +25,12 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Static files
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
+// Add request logging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - ${new Date().toISOString()}`);
+  next();
+});
+
 // Routes
 app.use('/api', apiRoutes);
 
@@ -34,6 +40,22 @@ app.get('/health', (req, res) => {
     status: 'ok',
     message: 'Backend is running',
     timestamp: new Date().toISOString()
+  });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Social Content Masterclass Backend',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      api: '/api',
+      effects: '/api/effects',
+      scenarios: '/api/scenarios',
+      generate: '/api/generate'
+    }
   });
 });
 
@@ -57,8 +79,9 @@ app.use('*', (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Social Content Masterclass Backend running on port ${PORT}`);
-  console.log(`📡 Health check: http://localhost:${PORT}/health`);
-  console.log(`🎨 Effects API: http://localhost:${PORT}/api/effects`);
-  console.log(`🎬 Scenarios API: http://localhost:${PORT}/api/scenarios`);
-  console.log(`⚡ Generate API: http://localhost:${PORT}/api/generate`);
+  console.log(`📡 Health check: http://0.0.0.0:${PORT}/health`);
+  console.log(`🎨 Effects API: http://0.0.0.0:${PORT}/api/effects`);
+  console.log(`🎬 Scenarios API: http://0.0.0.0:${PORT}/api/scenarios`);
+  console.log(`⚡ Generate API: http://0.0.0.0:${PORT}/api/generate`);
+  console.log(`🌍 Root endpoint: http://0.0.0.0:${PORT}/`);
 });

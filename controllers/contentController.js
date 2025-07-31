@@ -5,6 +5,7 @@ const scenarioEngine = require('../services/scenarioEngine');
 
 // Get all available effects
 exports.getEffects = async (req, res) => {
+  console.log('🎨 Getting all effects...');
   try {
     const effects = await effectProcessor.getAllEffects();
 
@@ -108,6 +109,7 @@ exports.getScenario = async (req, res) => {
 
 // Generate content
 exports.generateContent = async (req, res) => {
+  console.log('⚡ Generating content...', req.body);
   try {
     const { platform, scenario, device, format, mood, content, effects, export: exportOptions } = req.body;
 
