@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 
@@ -57,7 +56,11 @@ exports.getEffects = async (req, res) => {
     res.json({
       success: true,
       data: effects,
-      total: Object.keys(effects.text).length + Object.keys(effects.image).length
+      count: {
+        text: Object.keys(effects.text).length,
+        image: Object.keys(effects.image).length,
+        total: Object.keys(effects.text).length + Object.keys(effects.image).length
+      }
     });
   } catch (error) {
     console.error('Error getting effects:', error);
@@ -73,7 +76,7 @@ exports.getEffects = async (req, res) => {
 exports.getEffectsByType = async (req, res) => {
   try {
     const { type } = req.params;
-    
+
     if (!['text', 'image'].includes(type)) {
       return res.status(400).json({
         success: false,
@@ -85,8 +88,8 @@ exports.getEffectsByType = async (req, res) => {
     const effects = {};
 
     if (fs.existsSync(effectsDir)) {
-      const files = fs.readdirSync(effectsDir).filter(file => file.endsWith('.js'));
-      for (const file of files) {
+      const effectFiles = fs.readdirSync(effectsDir).filter(file => file.endsWith('.js'));
+      for (const file of effectFiles) {
         const effectName = file.replace('.js', '');
         const effectPath = path.join(effectsDir, file);
         try {
@@ -107,7 +110,7 @@ exports.getEffectsByType = async (req, res) => {
       success: true,
       data: effects,
       type: type,
-      total: Object.keys(effects).length
+      count: Object.keys(effects).length
     });
   } catch (error) {
     console.error('Error getting effects by type:', error);
@@ -119,21 +122,21 @@ exports.getEffectsByType = async (req, res) => {
   }
 };
 
-// Get all available scenarios
+// Get all scenarios
 exports.getScenarios = async (req, res) => {
   try {
     const scenariosDir = path.join(__dirname, '../scenarios');
     const scenarios = {};
 
     if (fs.existsSync(scenariosDir)) {
-      const files = fs.readdirSync(scenariosDir).filter(file => file.endsWith('.js'));
-      for (const file of files) {
+      const scenarioFiles = fs.readdirSync(scenariosDir).filter(file => file.endsWith('.js'));
+      for (const file of scenarioFiles) {
         const platform = file.replace('.js', '');
         const scenarioPath = path.join(scenariosDir, file);
         try {
           delete require.cache[require.resolve(scenarioPath)];
-          const scenarioModule = require(scenarioPath);
-          scenarios[platform] = scenarioModule;
+          const scenarioData = require(scenarioPath);
+          scenarios[platform] = scenarioData;
         } catch (error) {
           console.error(`Error loading scenario ${file}:`, error);
         }
@@ -143,7 +146,8 @@ exports.getScenarios = async (req, res) => {
     res.json({
       success: true,
       data: scenarios,
-      platforms: Object.keys(scenarios)
+      platforms: Object.keys(scenarios),
+      count: Object.keys(scenarios).length
     });
   } catch (error) {
     console.error('Error getting scenarios:', error);
@@ -169,11 +173,11 @@ exports.getScenario = async (req, res) => {
     }
 
     delete require.cache[require.resolve(scenarioPath)];
-    const scenario = require(scenarioPath);
+    const scenarioData = require(scenarioPath);
 
     res.json({
       success: true,
-      data: scenario,
+      data: scenarioData,
       platform: platform
     });
   } catch (error) {
@@ -189,84 +193,43 @@ exports.getScenario = async (req, res) => {
 // Generate content
 exports.generateContent = async (req, res) => {
   try {
-    const { platform, scenario, content, effects, device, format, mood } = req.body;
+    const { content, effects, scenario, template } = req.body;
 
-    if (!platform || !scenario || !content) {
+    if (!content) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: platform, scenario, content'
+        error: 'Content is required'
       });
     }
 
-    // Load the appropriate template
-    const templatePath = path.join(__dirname, '../templates', `${scenario}.html`);
-    let template = '';
+    // Load template
+    const templateName = template || 'basic';
+    const templatePath = path.join(__dirname, '../templates', `${templateName}.html`);
 
+    let htmlTemplate = '<html><body>{{content}}</body></html>';
     if (fs.existsSync(templatePath)) {
-      template = fs.readFileSync(templatePath, 'utf8');
-    } else {
-      // Fallback to basic template
-      const basicTemplatePath = path.join(__dirname, '../templates', 'basic.html');
-      if (fs.existsSync(basicTemplatePath)) {
-        template = fs.readFileSync(basicTemplatePath, 'utf8');
-      } else {
-        return res.status(500).json({
-          success: false,
-          error: 'No template found'
-        });
-      }
+      htmlTemplate = fs.readFileSync(templatePath, 'utf8');
     }
 
-    // Replace placeholders in template
-    let html = template;
-    Object.keys(content).forEach(key => {
-      const placeholder = `{{${key}}}`;
-      html = html.replace(new RegExp(placeholder, 'g'), content[key] || '');
-    });
+    // Process content with effects
+    let processedContent = content;
 
-    // Add effects if specified
-    let effectsCSS = '';
-    if (effects) {
-      Object.keys(effects).forEach(elementType => {
-        const effectName = effects[elementType];
-        if (effectName) {
-          // Add effect class to the element
-          const elementClass = `.content-${elementType}`;
-          html = html.replace(
-            new RegExp(`class="([^"]*content-${elementType}[^"]*)"`, 'g'),
-            `class="$1 effect-${effectName}"`
-          );
-          
-          // Load effect CSS
-          const textEffectPath = path.join(__dirname, '../effects/text', `${effectName}.js`);
-          const imageEffectPath = path.join(__dirname, '../effects/image', `${effectName}.js`);
-          
-          if (fs.existsSync(textEffectPath)) {
-            const effectContent = fs.readFileSync(textEffectPath, 'utf8');
-            effectsCSS += `\n/* ${effectName} text effect */\n${effectContent}\n`;
-          } else if (fs.existsSync(imageEffectPath)) {
-            const effectContent = fs.readFileSync(imageEffectPath, 'utf8');
-            effectsCSS += `\n/* ${effectName} image effect */\n${effectContent}\n`;
-          }
-        }
-      });
+    if (effects && effects.length > 0) {
+      // Apply effects logic here
+      processedContent = `<div class="effects-container">${content}</div>`;
     }
 
-    // Inject effects CSS into the HTML
-    if (effectsCSS) {
-      html = html.replace('</head>', `<style>${effectsCSS}</style>\n</head>`);
-    }
+    // Replace template placeholders
+    const finalHtml = htmlTemplate.replace('{{content}}', processedContent);
 
     res.json({
       success: true,
       data: {
-        html: html,
-        platform: platform,
-        scenario: scenario,
-        effects: effects,
-        device: device,
-        format: format,
-        mood: mood
+        html: finalHtml,
+        content: processedContent,
+        effects: effects || [],
+        scenario: scenario || null,
+        template: templateName
       }
     });
   } catch (error) {
@@ -279,49 +242,36 @@ exports.generateContent = async (req, res) => {
   }
 };
 
-// Preview content (without effects)
+// Preview content
 exports.previewContent = async (req, res) => {
   try {
-    const { platform, scenario, content } = req.body;
+    const { content, template } = req.body;
 
-    if (!platform || !scenario || !content) {
+    if (!content) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: platform, scenario, content'
+        error: 'Content is required'
       });
     }
 
     // Load template
-    const templatePath = path.join(__dirname, '../templates', `${scenario}.html`);
-    let template = '';
+    const templateName = template || 'basic';
+    const templatePath = path.join(__dirname, '../templates', `${templateName}.html`);
 
+    let htmlTemplate = '<html><body>{{content}}</body></html>';
     if (fs.existsSync(templatePath)) {
-      template = fs.readFileSync(templatePath, 'utf8');
-    } else {
-      const basicTemplatePath = path.join(__dirname, '../templates', 'basic.html');
-      if (fs.existsSync(basicTemplatePath)) {
-        template = fs.readFileSync(basicTemplatePath, 'utf8');
-      } else {
-        return res.status(500).json({
-          success: false,
-          error: 'No template found'
-        });
-      }
+      htmlTemplate = fs.readFileSync(templatePath, 'utf8');
     }
 
-    // Replace placeholders
-    let html = template;
-    Object.keys(content).forEach(key => {
-      const placeholder = `{{${key}}}`;
-      html = html.replace(new RegExp(placeholder, 'g'), content[key] || '');
-    });
+    // Replace template placeholders
+    const finalHtml = htmlTemplate.replace('{{content}}', content);
 
     res.json({
       success: true,
       data: {
-        html: html,
-        platform: platform,
-        scenario: scenario
+        html: finalHtml,
+        content: content,
+        template: templateName
       }
     });
   } catch (error) {
@@ -334,28 +284,34 @@ exports.previewContent = async (req, res) => {
   }
 };
 
-// Get available templates
+// Get templates
 exports.getTemplates = async (req, res) => {
   try {
     const templatesDir = path.join(__dirname, '../templates');
-    const templateFiles = fs.readdirSync(templatesDir)
-      .filter(file => file.endsWith('.html'))
-      .map(file => file.replace('.html', ''));
-
     const templates = {};
-    for (const templateName of templateFiles) {
-      const templatePath = path.join(templatesDir, `${templateName}.html`);
-      const templateContent = fs.readFileSync(templatePath, 'utf8');
-      templates[templateName] = {
-        name: templateName,
-        content: templateContent
-      };
+
+    if (fs.existsSync(templatesDir)) {
+      const templateFiles = fs.readdirSync(templatesDir).filter(file => file.endsWith('.html'));
+      for (const file of templateFiles) {
+        const templateName = file.replace('.html', '');
+        const templatePath = path.join(templatesDir, file);
+        try {
+          const templateContent = fs.readFileSync(templatePath, 'utf8');
+          templates[templateName] = {
+            name: templateName,
+            file: file,
+            content: templateContent
+          };
+        } catch (error) {
+          console.error(`Error loading template ${file}:`, error);
+        }
+      }
     }
 
     res.json({
       success: true,
       data: templates,
-      available: templateFiles
+      count: Object.keys(templates).length
     });
   } catch (error) {
     console.error('Error getting templates:', error);
