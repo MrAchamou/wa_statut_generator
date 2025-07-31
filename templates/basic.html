@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statut Généré - Social Content Masterclass</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow: hidden;
+        }
+
+        .device-frame {
+            position: relative;
+            border-radius: 25px;
+            padding: 20px;
+            border: 3px solid #333;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+            margin: 20px auto;
+        }
+
+        .device-frame.iphone {
+            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            border: 3px solid #444;
+        }
+
+        .device-frame.android {
+            background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+            border: 3px solid #333;
+        }
+
+        .device-screen {
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Format Sizes */
+        .format-9-16 { width: 280px; height: 498px; }
+        .format-1-1 { width: 350px; height: 350px; }
+        .format-16-9 { width: 480px; height: 270px; }
+        .format-4-5 { width: 320px; height: 400px; }
+
+        .content-layout {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: grid;
+            grid-template-areas: 
+                "header header"
+                "logo title"
+                "content content"
+                "cta cta"
+                "footer footer";
+            grid-template-rows: auto 1fr auto auto auto;
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .content-element {
+            position: relative;
+            z-index: 5;
+            transition: all 0.3s ease;
+        }
+
+        .content-header {
+            grid-area: header;
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .content-title {
+            grid-area: title;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-logo {
+            grid-area: logo;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-main {
+            grid-area: content;
+            text-align: center;
+            font-size: 1rem;
+            line-height: 1.4;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .content-cta {
+            grid-area: cta;
+            text-align: center;
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            font-weight: bold;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .content-footer {
+            grid-area: footer;
+            text-align: center;
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+
+        {{EFFECT_STYLES}}
+    </style>
+</head>
+<body>
+    <div class="device-frame">
+        <div class="device-screen">
+            <div class="content-layout">
+                <div class="content-header content-element" id="content-header">
+                    📱 Social Media Status
+                </div>
+                
+                <div class="content-logo content-element" id="content-logo">
+                    {{logo}}
+                </div>
+                
+                <div class="content-title content-element" id="content-title">
+                    {{title}}
+                </div>
+                
+                <div class="content-main content-element" id="content-main">
+                    {{message}}
+                </div>
+                
+                <div class="content-cta content-element" id="content-cta">
+                    {{cta}}
+                </div>
+                
+                <div class="content-footer content-element" id="content-footer">
+                    {{footer}}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
