@@ -43,11 +43,16 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Root endpoint
+// Root endpoint - serve frontend
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// API info endpoint
+app.get('/api', (req, res) => {
   res.json({
     success: true,
-    message: 'Social Content Masterclass Backend',
+    message: 'Social Content Masterclass Backend API',
     version: '1.0.0',
     endpoints: {
       health: '/health',
