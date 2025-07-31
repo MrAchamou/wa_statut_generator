@@ -1,17 +1,63 @@
 
 const fs = require('fs');
 const path = require('path');
-const effectProcessor = require('../services/effectProcessor');
-const scenarioEngine = require('../services/scenarioEngine');
 
 // Get all available effects
 exports.getEffects = async (req, res) => {
   try {
-    const effects = await effectProcessor.getAllEffects();
+    const effectsDir = path.join(__dirname, '../effects');
+    const textEffectsDir = path.join(effectsDir, 'text');
+    const imageEffectsDir = path.join(effectsDir, 'image');
+
+    const effects = {
+      text: {},
+      image: {}
+    };
+
+    // Load text effects
+    if (fs.existsSync(textEffectsDir)) {
+      const textFiles = fs.readdirSync(textEffectsDir).filter(file => file.endsWith('.js'));
+      for (const file of textFiles) {
+        const effectName = file.replace('.js', '');
+        const effectPath = path.join(textEffectsDir, file);
+        try {
+          const effectContent = fs.readFileSync(effectPath, 'utf8');
+          effects.text[effectName] = {
+            name: effectName,
+            type: 'text',
+            file: file,
+            content: effectContent
+          };
+        } catch (error) {
+          console.error(`Error loading text effect ${file}:`, error);
+        }
+      }
+    }
+
+    // Load image effects
+    if (fs.existsSync(imageEffectsDir)) {
+      const imageFiles = fs.readdirSync(imageEffectsDir).filter(file => file.endsWith('.js'));
+      for (const file of imageFiles) {
+        const effectName = file.replace('.js', '');
+        const effectPath = path.join(imageEffectsDir, file);
+        try {
+          const effectContent = fs.readFileSync(effectPath, 'utf8');
+          effects.image[effectName] = {
+            name: effectName,
+            type: 'image',
+            file: file,
+            content: effectContent
+          };
+        } catch (error) {
+          console.error(`Error loading image effect ${file}:`, error);
+        }
+      }
+    }
+
     res.json({
       success: true,
       data: effects,
-      count: Object.keys(effects.text || {}).length + Object.keys(effects.image || {}).length
+      total: Object.keys(effects.text).length + Object.keys(effects.image).length
     });
   } catch (error) {
     console.error('Error getting effects:', error);
@@ -23,7 +69,7 @@ exports.getEffects = async (req, res) => {
   }
 };
 
-// Get effects by type (text or image)
+// Get effects by type
 exports.getEffectsByType = async (req, res) => {
   try {
     const { type } = req.params;
@@ -31,16 +77,37 @@ exports.getEffectsByType = async (req, res) => {
     if (!['text', 'image'].includes(type)) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid effect type. Use "text" or "image"'
+        error: 'Invalid effect type. Must be "text" or "image"'
       });
     }
 
-    const effects = await effectProcessor.getEffectsByType(type);
+    const effectsDir = path.join(__dirname, '../effects', type);
+    const effects = {};
+
+    if (fs.existsSync(effectsDir)) {
+      const files = fs.readdirSync(effectsDir).filter(file => file.endsWith('.js'));
+      for (const file of files) {
+        const effectName = file.replace('.js', '');
+        const effectPath = path.join(effectsDir, file);
+        try {
+          const effectContent = fs.readFileSync(effectPath, 'utf8');
+          effects[effectName] = {
+            name: effectName,
+            type: type,
+            file: file,
+            content: effectContent
+          };
+        } catch (error) {
+          console.error(`Error loading ${type} effect ${file}:`, error);
+        }
+      }
+    }
+
     res.json({
       success: true,
-      type: type,
       data: effects,
-      count: Object.keys(effects).length
+      type: type,
+      total: Object.keys(effects).length
     });
   } catch (error) {
     console.error('Error getting effects by type:', error);
@@ -55,7 +122,24 @@ exports.getEffectsByType = async (req, res) => {
 // Get all available scenarios
 exports.getScenarios = async (req, res) => {
   try {
-    const scenarios = await scenarioEngine.getAllScenarios();
+    const scenariosDir = path.join(__dirname, '../scenarios');
+    const scenarios = {};
+
+    if (fs.existsSync(scenariosDir)) {
+      const files = fs.readdirSync(scenariosDir).filter(file => file.endsWith('.js'));
+      for (const file of files) {
+        const platform = file.replace('.js', '');
+        const scenarioPath = path.join(scenariosDir, file);
+        try {
+          delete require.cache[require.resolve(scenarioPath)];
+          const scenarioModule = require(scenarioPath);
+          scenarios[platform] = scenarioModule;
+        } catch (error) {
+          console.error(`Error loading scenario ${file}:`, error);
+        }
+      }
+    }
+
     res.json({
       success: true,
       data: scenarios,
@@ -71,23 +155,26 @@ exports.getScenarios = async (req, res) => {
   }
 };
 
-// Get specific scenario by platform
+// Get specific scenario
 exports.getScenario = async (req, res) => {
   try {
     const { platform } = req.params;
-    const scenario = await scenarioEngine.getScenarioByPlatform(platform);
-    
-    if (!scenario) {
+    const scenarioPath = path.join(__dirname, '../scenarios', `${platform}.js`);
+
+    if (!fs.existsSync(scenarioPath)) {
       return res.status(404).json({
         success: false,
         error: `Scenario for platform "${platform}" not found`
       });
     }
 
+    delete require.cache[require.resolve(scenarioPath)];
+    const scenario = require(scenarioPath);
+
     res.json({
       success: true,
-      platform: platform,
-      data: scenario
+      data: scenario,
+      platform: platform
     });
   } catch (error) {
     console.error('Error getting scenario:', error);
@@ -99,41 +186,87 @@ exports.getScenario = async (req, res) => {
   }
 };
 
-// Generate content with effects
+// Generate content
 exports.generateContent = async (req, res) => {
   try {
-    const { 
-      scenario, 
-      platform, 
-      content, 
-      effects = [], 
-      template = 'basic' 
-    } = req.body;
+    const { platform, scenario, content, effects, device, format, mood } = req.body;
 
-    // Validate required fields
-    if (!content || !platform) {
+    if (!platform || !scenario || !content) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: content and platform'
+        error: 'Missing required fields: platform, scenario, content'
       });
     }
 
-    // Generate the HTML content
-    const generatedHtml = await effectProcessor.generateWithEffects({
-      scenario,
-      platform,
-      content,
-      effects,
-      template
+    // Load the appropriate template
+    const templatePath = path.join(__dirname, '../templates', `${scenario}.html`);
+    let template = '';
+
+    if (fs.existsSync(templatePath)) {
+      template = fs.readFileSync(templatePath, 'utf8');
+    } else {
+      // Fallback to basic template
+      const basicTemplatePath = path.join(__dirname, '../templates', 'basic.html');
+      if (fs.existsSync(basicTemplatePath)) {
+        template = fs.readFileSync(basicTemplatePath, 'utf8');
+      } else {
+        return res.status(500).json({
+          success: false,
+          error: 'No template found'
+        });
+      }
+    }
+
+    // Replace placeholders in template
+    let html = template;
+    Object.keys(content).forEach(key => {
+      const placeholder = `{{${key}}}`;
+      html = html.replace(new RegExp(placeholder, 'g'), content[key] || '');
     });
+
+    // Add effects if specified
+    let effectsCSS = '';
+    if (effects) {
+      Object.keys(effects).forEach(elementType => {
+        const effectName = effects[elementType];
+        if (effectName) {
+          // Add effect class to the element
+          const elementClass = `.content-${elementType}`;
+          html = html.replace(
+            new RegExp(`class="([^"]*content-${elementType}[^"]*)"`, 'g'),
+            `class="$1 effect-${effectName}"`
+          );
+          
+          // Load effect CSS
+          const textEffectPath = path.join(__dirname, '../effects/text', `${effectName}.js`);
+          const imageEffectPath = path.join(__dirname, '../effects/image', `${effectName}.js`);
+          
+          if (fs.existsSync(textEffectPath)) {
+            const effectContent = fs.readFileSync(textEffectPath, 'utf8');
+            effectsCSS += `\n/* ${effectName} text effect */\n${effectContent}\n`;
+          } else if (fs.existsSync(imageEffectPath)) {
+            const effectContent = fs.readFileSync(imageEffectPath, 'utf8');
+            effectsCSS += `\n/* ${effectName} image effect */\n${effectContent}\n`;
+          }
+        }
+      });
+    }
+
+    // Inject effects CSS into the HTML
+    if (effectsCSS) {
+      html = html.replace('</head>', `<style>${effectsCSS}</style>\n</head>`);
+    }
 
     res.json({
       success: true,
       data: {
-        html: generatedHtml,
+        html: html,
         platform: platform,
+        scenario: scenario,
         effects: effects,
-        template: template
+        device: device,
+        format: format,
+        mood: mood
       }
     });
   } catch (error) {
@@ -146,35 +279,56 @@ exports.generateContent = async (req, res) => {
   }
 };
 
-// Preview content without effects
+// Preview content (without effects)
 exports.previewContent = async (req, res) => {
   try {
-    const { content, template = 'basic' } = req.body;
+    const { platform, scenario, content } = req.body;
 
-    if (!content) {
+    if (!platform || !scenario || !content) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required field: content'
+        error: 'Missing required fields: platform, scenario, content'
       });
     }
 
-    const previewHtml = await effectProcessor.generatePreview({
-      content,
-      template
+    // Load template
+    const templatePath = path.join(__dirname, '../templates', `${scenario}.html`);
+    let template = '';
+
+    if (fs.existsSync(templatePath)) {
+      template = fs.readFileSync(templatePath, 'utf8');
+    } else {
+      const basicTemplatePath = path.join(__dirname, '../templates', 'basic.html');
+      if (fs.existsSync(basicTemplatePath)) {
+        template = fs.readFileSync(basicTemplatePath, 'utf8');
+      } else {
+        return res.status(500).json({
+          success: false,
+          error: 'No template found'
+        });
+      }
+    }
+
+    // Replace placeholders
+    let html = template;
+    Object.keys(content).forEach(key => {
+      const placeholder = `{{${key}}}`;
+      html = html.replace(new RegExp(placeholder, 'g'), content[key] || '');
     });
 
     res.json({
       success: true,
       data: {
-        html: previewHtml,
-        template: template
+        html: html,
+        platform: platform,
+        scenario: scenario
       }
     });
   } catch (error) {
-    console.error('Error generating preview:', error);
+    console.error('Error previewing content:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to generate preview',
+      error: 'Failed to preview content',
       message: error.message
     });
   }
